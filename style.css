@@ -1,248 +1,57 @@
-/* =====================================
-   全体レイアウト
-===================================== */
 body {
-  margin: 0;
-  padding: 0;
-  background: #f4f6fa;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-  color: #222;
-}
-
-.app {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 15px;
-}
-
-/* =====================================
-   ヘッダー
-===================================== */
-.app-header {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.app-header h1 {
-  font-size: 26px;
-  font-weight: 700;
-  margin: 0 0 5px;
-}
-
-.subtitle {
-  color: #666;
-  font-size: 14px;
-}
-
-/* =====================================
-   カード
-===================================== */
-.card {
-  background: #fff;
+  font-family: sans-serif;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-  margin-bottom: 25px;
+  background: #f6f6f6;
+}
+
+h1, h2, h3 {
+  text-align: center;
+}
+
+section {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-/* =====================================
-   入力フィールド
-===================================== */
-.field {
-  margin-bottom: 15px;
-}
-
-select {
+button {
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* =====================================
-   ボタン
-===================================== */
-.btn-primary {
-  background: #2979ff;
-  color: #fff;
-  padding: 12px 20px;
+  padding: 12px;
+  margin-top: 15px;
+  font-size: 18px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  display: inline-block;
-  margin-top: 10px;
 }
 
-.btn-primary:hover {
-  background: #1e63d3;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-primary {
+  background: #007bff;
+  color: white;
 }
 
 .btn-ghost {
-  background: #efefef;
-  color: #444;
-  padding: 12px 20px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
+  background: #ddd;
 }
 
-.btn-ghost:hover {
-  background: #e2e2e2;
-}
-
-/* =====================================
-   クイズ画面ヘッダー
-===================================== */
-.quiz-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.badge {
-  background: #e7f0ff;
-  border: 1px solid #b0cdfc;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-/* =====================================
-   問題文・選択肢
-===================================== */
-#quiz-question-text {
-  font-size: 20px;
-  margin-bottom: 15px;
-  line-height: 1.4;
-}
-
-.options-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 15px;
-}
-
-.option-btn {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  background: #f7f7f7;
-  border: 1px solid #bbb;
-  border-radius: 6px;
+#quiz-options button {
   text-align: left;
-  font-size: 16px;
-  cursor: pointer;
 }
 
-.option-btn:hover {
-  background: #e6efff;
-}
-
-.option-btn.selected {
-  border-color: #2979ff;
-  background: #eaf2ff;
-}
-
-.option-btn.correct {
-  border-color: #2e7d32;
-  background: #e8f5e9;
-}
-
-.option-btn.wrong {
-  border-color: #c62828;
-  background: #ffebee;
-}
-
-/* =====================================
-   フィードバック部分
-===================================== */
 .feedback {
-  margin: 10px 0 20px;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 15px;
-  display: none;
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .feedback.correct {
-  display: block;
-  background: #e8f5e9;
-  border: 1px solid #66bb6a;
-  color: #2e7d32;
+  color: green;
 }
 
 .feedback.wrong {
-  display: block;
-  background: #ffebee;
-  border: 1px solid #ef9a9a;
-  color: #c62828;
-}
-
-/* =====================================
-   フッター（次へ / 戻る）
-===================================== */
-.quiz-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-/* =====================================
-   結果画面
-===================================== */
-.result-score {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.result-detail {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-.result-list ol {
-  padding-left: 20px;
-}
-
-.result-item-correct {
-  color: #2e7d32;
-}
-
-.result-item-wrong {
-  color: #c62828;
-}
-
-/* =====================================
-   モバイル最適化
-===================================== */
-@media (max-width: 600px) {
-  .btn-primary,
-  .btn-ghost {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .quiz-footer {
-    flex-direction: column;
-  }
-
-  .quiz-footer button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
+  color: red;
 }
