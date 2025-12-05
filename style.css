@@ -259,3 +259,9 @@ select {
     width: 100%;
   }
 }
+.feedback-exp {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
