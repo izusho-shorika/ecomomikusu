@@ -32,6 +32,9 @@ const BOOK_STRUCTURE = {
   }
 };
 
+// 全章の問題を格納する大元のオブジェクト
+const QUESTION_BANK = {};
+
 QUESTION_BANK["1-2"] = [
   {
     q: "経済学における「選択」の本質として最も適切なのはどれか。",
