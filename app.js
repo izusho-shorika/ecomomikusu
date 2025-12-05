@@ -1,59 +1,50 @@
-// app.js（完全版）
-// 章が表示されないバグ修正済み
-// 正答位置のシャッフル機能搭載
+/************************************
+ *  エコノミクス甲子園クイズアプリ
+ *          app.js（完全版）
+ ************************************/
 
-//----------------------------------------------------
-// DOM
-//----------------------------------------------------
-const modeRadios = () => document.querySelectorAll('input[name="mode"]');
-const henSelect = document.getElementById("hen-select");
-const chapterSelect = document.getElementById("chapter-select");
-const questionCountSelect = document.getElementById("question-count");
-const startBtn = document.getElementById("start-btn");
-const configErrorEl = document.getElementById("config-error");
-
-const quizSection = document.getElementById("quiz-section");
-const quizProgressEl = document.getElementById("quiz-progress");
-const quizMetaEl = document.getElementById("quiz-meta");
-const quizQuestionEl = document.getElementById("quiz-question");
-const quizOptionsEl = document.getElementById("quiz-options");
-const quizFeedbackEl = document.getElementById("quiz-feedback");
-const nextBtn = document.getElementById("next-btn");
-
-const resultSection = document.getElementById("result-section");
-const resultSummaryEl = document.getElementById("result-summary");
-const resultListOl = document.getElementById("result-list");
-const retryBtn = document.getElementById("retry-btn");
-const backBtn = document.getElementById("back-btn");
-
-//----------------------------------------------------
-let currentMode = "range";
-let selectedHen = null;
-let selectedChapter = null;
-let quizQuestions = [];
-let currentIndex = 0;
-let score = 0;
-let answeredResults = [];
-let locked = false;
-let lastConfig = null;
-
-//----------------------------------------------------
-// シャッフル処理
-//----------------------------------------------------
-function shuffle(array) {
-  const arr = array.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+// -------------------------------
+// ① QUESTION_BANK から「編一覧」を抽出
+// -------------------------------
+function getEditionList() {
+  const editions = new Set();
+  for (const key of Object.keys(QUESTION_BANK)) {
+    const [ed] = key.split("-");
+    editions.add(ed);
   }
-  return arr;
+  return Array.from(editions).sort();
 }
 
-// 正答インデックスも含めてシャッフル
+// -------------------------------
+// ② 指定した編の「章一覧」を抽出
+// -------------------------------
+function getChapterList(edition) {
+  return Object.keys(QUESTION_BANK)
+    .filter(k => k.startsWith(edition + "-"))
+    .map(k => k.split("-")[1])
+    .sort((a, b) => Number(a) - Number(b));
+}
+
+// -------------------------------
+// ③ シャッフル（配列）
+// -------------------------------
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// -------------------------------
+// ④ 選択肢をシャッフルし、正答位置を再計算
+// -------------------------------
 function shuffleOptions(qObj) {
   const order = shuffle([0, 1, 2, 3]);
   const newOpts = order.map(i => qObj.opts[i]);
   const newAnswer = order.indexOf(qObj.answer);
+
   return {
     q: qObj.q,
     opts: newOpts,
@@ -62,255 +53,164 @@ function shuffleOptions(qObj) {
   };
 }
 
-//----------------------------------------------------
-// 章セレクト生成
-//----------------------------------------------------
-function initSelectors() {
-  henSelect.innerHTML = "";
-  Object.entries(BOOK_STRUCTURE).forEach(([henId, info]) => {
-    const opt = document.createElement("option");
-    opt.value = henId;
-    opt.textContent = info.name;
-    henSelect.appendChild(opt);
-  });
-
-  selectedHen = henSelect.value;
-  populateChapterSelect();
-
-  henSelect.addEventListener("change", () => {
-    selectedHen = henSelect.value;
-    populateChapterSelect();
-  });
-
-  chapterSelect.addEventListener("change", () => {
-    selectedChapter = chapterSelect.value;
-  });
-
-  modeRadios().forEach(radio => {
-    radio.addEventListener("change", () => {
-      currentMode = document.querySelector('input[name="mode"]:checked').value;
-      updateSelectorsState();
-    });
-  });
-
-  updateSelectorsState();
-}
-
-// 章を表示
-function populateChapterSelect() {
-  chapterSelect.innerHTML = "";
-  const chapters = BOOK_STRUCTURE[selectedHen].chapters;
-  Object.entries(chapters).forEach(([cid, cname]) => {
-    const opt = document.createElement("option");
-    opt.value = cid;
-    opt.textContent = cname;
-    chapterSelect.appendChild(opt);
-  });
-  selectedChapter = chapterSelect.value;
-}
-
-// モードに応じてセレクト有効・無効を切替
-function updateSelectorsState() {
-  configErrorEl.textContent = "";
-
-  if (currentMode === "range") {
-    henSelect.disabled = false;
-    chapterSelect.disabled = false;
-  } else if (currentMode === "hen") {
-    henSelect.disabled = false;
-    chapterSelect.disabled = true;
-  } else {
-    henSelect.disabled = true;
-    chapterSelect.disabled = true;
-  }
-}
-
-//----------------------------------------------------
-// 問題収集（シャッフル適用版）
-//----------------------------------------------------
-function collectQuestions(mode, henId, chapterId, count) {
+// -------------------------------
+// ⑤ 問題収集（編・章指定 / 編全体 / 全体）
+// -------------------------------
+function collectQuestions(mode, edition, chapter, count) {
   let list = [];
 
-  if (mode === "range") {
-    const key = henId + "-" + chapterId;
-    if (!QUESTION_BANK[key]) return [];
-    list = QUESTION_BANK[key].slice();
-  } else if (mode === "hen") {
-    const prefix = henId + "-";
-    Object.keys(QUESTION_BANK)
-      .filter(k => k.startsWith(prefix))
-      .forEach(k => {
-        list = list.concat(QUESTION_BANK[k]);
-      });
-  } else {
-    Object.values(QUESTION_BANK).forEach(arr => {
-      list = list.concat(arr);
-    });
+  if (mode === "select") {
+    if (!edition || !chapter) return [];
+    list = QUESTION_BANK[`${edition}-${chapter}`] || [];
   }
 
-  if (!list.length) return [];
+  else if (mode === "edition") {
+    if (!edition) return [];
+    const chapters = getChapterList(edition);
+    for (const ch of chapters) {
+      const data = QUESTION_BANK[`${edition}-${ch}`];
+      if (Array.isArray(data)) list.push(...data);
+    }
+  }
 
-  // ★エラーを起こしていた部分を完全修正★
+  else if (mode === "all") {
+    for (const key of Object.keys(QUESTION_BANK)) {
+      const data = QUESTION_BANK[key];
+      if (Array.isArray(data)) list.push(...data);
+    }
+  }
+
+  // 問題シャッフル → 指定数に切り取り → 選択肢をシャッフル
   return shuffle(list)
     .slice(0, Math.min(count, list.length))
     .map(q => shuffleOptions(q));
 }
 
-//----------------------------------------------------
-// クイズ開始
-//----------------------------------------------------
+// -------------------------------
+// ⑥ UI 初期化（編・章のプルダウンを自動生成）
+// -------------------------------
+function initUI() {
+  const editionSelect = document.getElementById("editionSelect");
+  const chapterSelect = document.getElementById("chapterSelect");
+
+  // 編の一覧を表示
+  const editions = getEditionList();
+  editions.forEach(ed => {
+    const op = document.createElement("option");
+    op.value = ed;
+    op.textContent = `第${ed}編`;
+    editionSelect.appendChild(op);
+  });
+
+  // 編を選んだら章一覧を更新
+  editionSelect.addEventListener("change", () => {
+    const ed = editionSelect.value;
+    chapterSelect.innerHTML = "<option value=''>章を選択</option>";
+
+    if (!ed) return;
+
+    const chapters = getChapterList(ed);
+    chapters.forEach(ch => {
+      const op = document.createElement("option");
+      op.value = ch;
+      op.textContent = `${ch}章`;
+      chapterSelect.appendChild(op);
+    });
+  });
+}
+
+// -------------------------------
+// ⑦ クイズ開始
+// -------------------------------
 function startQuiz() {
-  configErrorEl.textContent = "";
+  const mode = document.querySelector("input[name='mode']:checked").value;
+  const edition = document.getElementById("editionSelect").value;
+  const chapter = document.getElementById("chapterSelect").value;
+  const count = Number(document.getElementById("countSelect").value);
 
-  const mode = currentMode;
-  const henId = selectedHen;
-  const chapterId = selectedChapter;
-  const count = parseInt(questionCountSelect.value, 10);
-
-  quizQuestions = collectQuestions(mode, henId, chapterId, count);
-
-  if (!quizQuestions.length) {
-    configErrorEl.textContent = "問題データがありません。";
+  let questions;
+  try {
+    questions = collectQuestions(mode, edition, chapter, count);
+  } catch (e) {
+    alert("問題データの読み込みにエラーがあります。\nquestions.js の構造を確認してください。");
+    console.error(e);
     return;
   }
 
-  quizSection.classList.remove("hidden");
-  resultSection.classList.add("hidden");
-
-  currentIndex = 0;
-  score = 0;
-  answeredResults = [];
-
-  lastConfig = { mode, henId, chapterId, count };
-
-  renderQuestion();
-}
-
-//----------------------------------------------------
-// 問題表示
-//----------------------------------------------------
-function renderQuestion() {
-  const total = quizQuestions.length;
-  const qObj = quizQuestions[currentIndex];
-
-  quizProgressEl.textContent = (currentIndex + 1) + " / " + total;
-  quizQuestionEl.textContent = qObj.q;
-
-  quizOptionsEl.innerHTML = "";
-  quizFeedbackEl.textContent = "";
-  quizFeedbackEl.className = "feedback";
-  nextBtn.disabled = true;
-  locked = false;
-
-  const labels = ["A", "B", "C", "D"];
-
-  qObj.opts.forEach((optText, idx) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "option-btn";
-    btn.innerHTML =
-      `<span class="opt-label">${labels[idx]}</span><span class="opt-text">${optText}</span>`;
-
-    btn.addEventListener("click", () => onSelectOption(idx, btn));
-    quizOptionsEl.appendChild(btn);
-  });
-}
-
-//----------------------------------------------------
-// 回答処理
-//----------------------------------------------------
-function onSelectOption(idx, btn) {
-  if (locked) return;
-  locked = true;
-
-  const qObj = quizQuestions[currentIndex];
-  const isCorrect = idx === qObj.answer;
-
-  if (isCorrect) {
-    score++;
-    quizFeedbackEl.textContent = "正解！";
-    quizFeedbackEl.classList.add("correct");
-  } else {
-    quizFeedbackEl.textContent = "不正解……";
-    quizFeedbackEl.classList.add("incorrect");
+  if (!questions || questions.length === 0) {
+    alert("問題が取得できません。条件を確認してください。");
+    return;
   }
 
-  const buttons = quizOptionsEl.querySelectorAll("button");
-  buttons.forEach((b, i) => {
-    b.disabled = true;
-    if (i === qObj.answer) b.classList.add("correct-option");
-    if (i === idx && idx !== qObj.answer) b.classList.add("wrong-option");
-  });
-
-  answeredResults.push({
-    q: qObj.q,
-    opts: qObj.opts,
-    answer: qObj.answer,
-    userAnswer: idx,
-    exp: qObj.exp
-  });
-
-  nextBtn.disabled = false;
+  renderQuiz(questions);
 }
 
-//----------------------------------------------------
-// 結果
-//----------------------------------------------------
-function showResult() {
-  quizSection.classList.add("hidden");
-  resultSection.classList.remove("hidden");
+// -------------------------------
+// ⑧ クイズ画面表示
+// -------------------------------
+function renderQuiz(questions) {
+  const quizSection = document.getElementById("quizSection");
+  const questionBox = document.getElementById("questionBox");
+  const resultBox = document.getElementById("resultBox");
 
-  resultSummaryEl.textContent = `正解数：${score} / ${quizQuestions.length}`;
+  quizSection.classList.remove("hidden");
+  resultBox.classList.add("hidden");
+  questionBox.innerHTML = "";
 
-  resultListOl.innerHTML = "";
-  answeredResults.forEach((r, idx) => {
-    const li = document.createElement("li");
+  let index = 0;
+  let score = 0;
 
-    li.innerHTML = `
-      <strong>${idx + 1}. ${r.q}</strong><br>
-      あなたの答え：${r.opts[r.userAnswer]}<br>
-      正解：${r.opts[r.answer]}<br>
-      <em>解説：${r.exp}</em>
+  function showQuestion() {
+    const q = questions[index];
+    questionBox.innerHTML = `
+      <h3>${index + 1}問目</h3>
+      <p class="qtext">${q.q}</p>
+      <div id="opts"></div>
     `;
-    resultListOl.appendChild(li);
-  });
+
+    const optsDiv = document.getElementById("opts");
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.className = "opt-btn";
+      btn.onclick = () => {
+        if (i === q.answer) score++;
+        index++;
+        if (index < questions.length) showQuestion();
+        else showResult();
+      };
+      optsDiv.appendChild(btn);
+    });
+  }
+
+  function showResult() {
+    questionBox.innerHTML = "";
+    resultBox.classList.remove("hidden");
+
+    resultBox.innerHTML = `
+      <h3>結果</h3>
+      <p>${questions.length}問中 ${score}問正解</p>
+      <h4>解説</h4>
+    `;
+
+    questions.forEach((q, i) => {
+      resultBox.innerHTML += `
+        <div class="exp-box">
+          <p>${i + 1}. ${q.q}</p>
+          <p><strong>正解：</strong>${q.opts[q.answer]}</p>
+          <p class="exp">${q.exp}</p>
+        </div>
+      `;
+    });
+  }
+
+  showQuestion();
 }
 
-//----------------------------------------------------
-// 初期化
-//----------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  initSelectors();
-  startBtn.addEventListener("click", startQuiz);
-
-  nextBtn.addEventListener("click", () => {
-    if (currentIndex < quizQuestions.length - 1) {
-      currentIndex++;
-      renderQuestion();
-    } else {
-      showResult();
-    }
-  });
-
-  retryBtn.addEventListener("click", () => {
-    if (lastConfig) {
-      quizSection.classList.remove("hidden");
-      resultSection.classList.add("hidden");
-      quizQuestions = collectQuestions(
-        lastConfig.mode,
-        lastConfig.henId,
-        lastConfig.chapterId,
-        lastConfig.count
-      );
-      currentIndex = 0;
-      score = 0;
-      answeredResults = [];
-      renderQuestion();
-    }
-  });
-
-  backBtn.addEventListener("click", () => {
-    quizSection.classList.add("hidden");
-    resultSection.classList.add("hidden");
-  });
+// -------------------------------
+// ⑨ イベント登録
+// -------------------------------
+window.addEventListener("DOMContentLoaded", () => {
+  initUI();
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
 });
