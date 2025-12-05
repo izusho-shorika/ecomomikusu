@@ -5,7 +5,61 @@
   <title>エコノミクス甲子園 練習クイズ</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- ★JS の option-btn を CSS の opt-btn にマッピング -->
+  <style>
+    .option-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f7f7f7;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .option-btn:hover {
+      background: #e0ebff;
+    }
+    .option-btn.selected {
+      border-color: #2979ff;
+      background: #e6f0ff;
+    }
+    .option-btn.correct {
+      border-color: #2e7d32;
+      background: #e8f5e9;
+    }
+    .option-btn.wrong {
+      border-color: #c62828;
+      background: #ffebee;
+    }
+
+    /* btn primary の正しい定義（style.css と一致） */
+    .btn-primary {
+      background: #2979ff;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+    }
+
+    .btn-ghost {
+      background: #eee;
+      color: #333;
+      padding: 12px 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
   <div class="app">
     <header class="app-header">
@@ -33,7 +87,9 @@
         <select id="chapter-select"></select>
       </div>
 
-      <button id="start-btn" class="btn primary">この範囲でスタート</button>
+      <!-- ★btn primary を btn-primary に修正 -->
+      <button id="start-btn" class="btn-primary">この範囲でスタート</button>
+
       <p class="note">※ 現在は「第Ⅰ編 第2章・第3章」のみ登録済み。あとから他の章も追加可能です。</p>
     </section>
 
@@ -47,14 +103,14 @@
       <h2 id="quiz-question-text"></h2>
 
       <ul id="quiz-options" class="options-list">
-        <!-- JSで選択肢ボタンを挿入 -->
+        <!-- JSで option-btn が挿入される -->
       </ul>
 
       <div id="quiz-feedback" class="feedback"></div>
 
       <div class="quiz-footer">
-        <button id="back-to-setup-btn" class="btn ghost">最初に戻る</button>
-        <button id="next-btn" class="btn primary" disabled>次へ</button>
+        <button id="back-to-setup-btn" class="btn-ghost">最初に戻る</button>
+        <button id="next-btn" class="btn-primary" disabled>次へ</button>
       </div>
     </section>
 
@@ -65,8 +121,8 @@
       <p id="result-detail" class="result-detail"></p>
 
       <div class="result-actions">
-        <button id="retry-same-btn" class="btn primary">同じ範囲でもう一度</button>
-        <button id="back-to-setup-btn2" class="btn ghost">モード選択に戻る</button>
+        <button id="retry-same-btn" class="btn-primary">同じ範囲でもう一度</button>
+        <button id="back-to-setup-btn2" class="btn-ghost">モード選択に戻る</button>
       </div>
 
       <details class="result-list">
