@@ -1,57 +1,138 @@
+/* 画面全体の整形 */
 body {
-  font-family: sans-serif;
-  padding: 20px;
-  background: #f6f6f6;
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: #f4f7fb;
+  color: #222;
 }
 
-h1, h2, h3 {
+/* 中央カード配置 */
+.center-card {
+  max-width: 540px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* タイトル */
+.title {
   text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
-section {
-  max-width: 700px;
-  margin: auto;
+.subtitle {
+  text-align: center;
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+/* カード */
+.card {
+  background: #fff;
   padding: 20px;
-  background: white;
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.hidden {
-  display: none !important;
+/* ラジオの横並び */
+.mode-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 15px;
 }
 
-button {
+/* セクションタイトル */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* 小見出し */
+.small-title {
+  margin: 10px 0 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* セレクトボックス */
+.select-box {
   width: 100%;
   padding: 12px;
-  margin-top: 15px;
-  font-size: 18px;
-  border-radius: 8px;
-  border: none;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fff;
+  margin-bottom: 14px;
 }
 
+/* ボタン */
 .btn-primary {
-  background: #007bff;
-  color: white;
+  background: #2F6BFF;
+  color: #fff;
+  border: none;
+  padding: 14px 0;
+  font-size: 17px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #1f54cc;
 }
 
 .btn-ghost {
-  background: #ddd;
+  background: transparent;
+  border: 1px solid #aaa;
+  padding: 12px 0;
+  font-size: 16px;
+  border-radius: 10px;
+  color: #444;
 }
 
-#quiz-options button {
-  text-align: left;
+.full {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* クイズ画面 */
+.quiz-question {
+  margin: 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.options button {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+}
+
+.options button:hover {
+  background: #e8eefc;
 }
 
 .feedback {
-  margin-top: 10px;
-  font-size: 20px;
-  font-weight: bold;
+  margin-top: 12px;
+  font-size: 16px;
+  min-height: 24px;
 }
 
-.feedback.correct {
-  color: green;
+.result-score {
+  font-size: 22px;
+  text-align: center;
+  margin: 20px 0;
 }
 
-.feedback.wrong {
-  color: red;
+/* 非表示 */
+.hidden {
+  display: none;
 }
