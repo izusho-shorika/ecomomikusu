@@ -1,6 +1,10 @@
-// app.js（シャッフル機能組込み版）
-// クイズアプリ本体
+// app.js（完全版）
+// 章が表示されないバグ修正済み
+// 正答位置のシャッフル機能搭載
 
+//----------------------------------------------------
+// DOM
+//----------------------------------------------------
 const modeRadios = () => document.querySelectorAll('input[name="mode"]');
 const henSelect = document.getElementById("hen-select");
 const chapterSelect = document.getElementById("chapter-select");
@@ -22,6 +26,7 @@ const resultListOl = document.getElementById("result-list");
 const retryBtn = document.getElementById("retry-btn");
 const backBtn = document.getElementById("back-btn");
 
+//----------------------------------------------------
 let currentMode = "range";
 let selectedHen = null;
 let selectedChapter = null;
@@ -32,9 +37,9 @@ let answeredResults = [];
 let locked = false;
 let lastConfig = null;
 
-// --------------------------------------
-// ★ Fisher-Yates シャッフル
-// --------------------------------------
+//----------------------------------------------------
+// シャッフル処理
+//----------------------------------------------------
 function shuffle(array) {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
@@ -44,14 +49,11 @@ function shuffle(array) {
   return arr;
 }
 
-// --------------------------------------
-// ★ 選択肢シャッフル + 正答インデックス更新
-// --------------------------------------
+// 正答インデックスも含めてシャッフル
 function shuffleOptions(qObj) {
   const order = shuffle([0, 1, 2, 3]);
   const newOpts = order.map(i => qObj.opts[i]);
   const newAnswer = order.indexOf(qObj.answer);
-
   return {
     q: qObj.q,
     opts: newOpts,
@@ -60,9 +62,9 @@ function shuffleOptions(qObj) {
   };
 }
 
-// --------------------------------------
-// 初期処理（略）
-// --------------------------------------
+//----------------------------------------------------
+// 章セレクト生成
+//----------------------------------------------------
 function initSelectors() {
   henSelect.innerHTML = "";
   Object.entries(BOOK_STRUCTURE).forEach(([henId, info]) => {
@@ -71,6 +73,7 @@ function initSelectors() {
     opt.textContent = info.name;
     henSelect.appendChild(opt);
   });
+
   selectedHen = henSelect.value;
   populateChapterSelect();
 
@@ -93,11 +96,38 @@ function initSelectors() {
   updateSelectorsState();
 }
 
-// （populateChapterSelect / updateSelectorsState / getSelectedMode は変更なし）
+// 章を表示
+function populateChapterSelect() {
+  chapterSelect.innerHTML = "";
+  const chapters = BOOK_STRUCTURE[selectedHen].chapters;
+  Object.entries(chapters).forEach(([cid, cname]) => {
+    const opt = document.createElement("option");
+    opt.value = cid;
+    opt.textContent = cname;
+    chapterSelect.appendChild(opt);
+  });
+  selectedChapter = chapterSelect.value;
+}
 
-// --------------------------------------
-// ★ 問題収集 → 必ずシャッフル適用
-// --------------------------------------
+// モードに応じてセレクト有効・無効を切替
+function updateSelectorsState() {
+  configErrorEl.textContent = "";
+
+  if (currentMode === "range") {
+    henSelect.disabled = false;
+    chapterSelect.disabled = false;
+  } else if (currentMode === "hen") {
+    henSelect.disabled = false;
+    chapterSelect.disabled = true;
+  } else {
+    henSelect.disabled = true;
+    chapterSelect.disabled = true;
+  }
+}
+
+//----------------------------------------------------
+// 問題収集（シャッフル適用版）
+//----------------------------------------------------
 function collectQuestions(mode, henId, chapterId, count) {
   let list = [];
 
@@ -118,29 +148,54 @@ function collectQuestions(mode, henId, chapterId, count) {
     });
   }
 
-if (!list.length) return [];
+  if (!list.length) return [];
 
-// ★ 個々の問題にも毎回シャッフルを適用
-const shuffledList = shuffle(list)
-  .slice(0, Math.min(count, list.length))
-  .map(q => shuffleOptions(q));  // ← ここが重要！
-
-return shuffledList;
+  // ★エラーを起こしていた部分を完全修正★
+  return shuffle(list)
+    .slice(0, Math.min(count, list.length))
+    .map(q => shuffleOptions(q));
 }
 
-// --------------------------------------
-// startQuiz（略）
-// --------------------------------------
+//----------------------------------------------------
+// クイズ開始
+//----------------------------------------------------
+function startQuiz() {
+  configErrorEl.textContent = "";
 
-// --------------------------------------
-// renderQuestion（選択肢はすでにシャッフル済み）
-// --------------------------------------
+  const mode = currentMode;
+  const henId = selectedHen;
+  const chapterId = selectedChapter;
+  const count = parseInt(questionCountSelect.value, 10);
+
+  quizQuestions = collectQuestions(mode, henId, chapterId, count);
+
+  if (!quizQuestions.length) {
+    configErrorEl.textContent = "問題データがありません。";
+    return;
+  }
+
+  quizSection.classList.remove("hidden");
+  resultSection.classList.add("hidden");
+
+  currentIndex = 0;
+  score = 0;
+  answeredResults = [];
+
+  lastConfig = { mode, henId, chapterId, count };
+
+  renderQuestion();
+}
+
+//----------------------------------------------------
+// 問題表示
+//----------------------------------------------------
 function renderQuestion() {
   const total = quizQuestions.length;
   const qObj = quizQuestions[currentIndex];
 
   quizProgressEl.textContent = (currentIndex + 1) + " / " + total;
   quizQuestionEl.textContent = qObj.q;
+
   quizOptionsEl.innerHTML = "";
   quizFeedbackEl.textContent = "";
   quizFeedbackEl.className = "feedback";
@@ -148,18 +203,82 @@ function renderQuestion() {
   locked = false;
 
   const labels = ["A", "B", "C", "D"];
+
   qObj.opts.forEach((optText, idx) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "option-btn";
-    btn.innerHTML = `<span class="opt-label">${labels[idx]}</span><span class="opt-text">${optText}</span>`;
+    btn.innerHTML =
+      `<span class="opt-label">${labels[idx]}</span><span class="opt-text">${optText}</span>`;
+
     btn.addEventListener("click", () => onSelectOption(idx, btn));
     quizOptionsEl.appendChild(btn);
   });
 }
 
-// onSelectOption / showResult / イベント登録は変更なし
+//----------------------------------------------------
+// 回答処理
+//----------------------------------------------------
+function onSelectOption(idx, btn) {
+  if (locked) return;
+  locked = true;
 
+  const qObj = quizQuestions[currentIndex];
+  const isCorrect = idx === qObj.answer;
+
+  if (isCorrect) {
+    score++;
+    quizFeedbackEl.textContent = "正解！";
+    quizFeedbackEl.classList.add("correct");
+  } else {
+    quizFeedbackEl.textContent = "不正解……";
+    quizFeedbackEl.classList.add("incorrect");
+  }
+
+  const buttons = quizOptionsEl.querySelectorAll("button");
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === qObj.answer) b.classList.add("correct-option");
+    if (i === idx && idx !== qObj.answer) b.classList.add("wrong-option");
+  });
+
+  answeredResults.push({
+    q: qObj.q,
+    opts: qObj.opts,
+    answer: qObj.answer,
+    userAnswer: idx,
+    exp: qObj.exp
+  });
+
+  nextBtn.disabled = false;
+}
+
+//----------------------------------------------------
+// 結果
+//----------------------------------------------------
+function showResult() {
+  quizSection.classList.add("hidden");
+  resultSection.classList.remove("hidden");
+
+  resultSummaryEl.textContent = `正解数：${score} / ${quizQuestions.length}`;
+
+  resultListOl.innerHTML = "";
+  answeredResults.forEach((r, idx) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <strong>${idx + 1}. ${r.q}</strong><br>
+      あなたの答え：${r.opts[r.userAnswer]}<br>
+      正解：${r.opts[r.answer]}<br>
+      <em>解説：${r.exp}</em>
+    `;
+    resultListOl.appendChild(li);
+  });
+}
+
+//----------------------------------------------------
+// 初期化
+//----------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   initSelectors();
   startBtn.addEventListener("click", startQuiz);
@@ -180,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
       quizQuestions = collectQuestions(
         lastConfig.mode,
         lastConfig.henId,
-        lastConfig.chId,
+        lastConfig.chapterId,
         lastConfig.count
       );
       currentIndex = 0;
