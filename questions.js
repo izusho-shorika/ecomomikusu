@@ -2021,3 +2021,10 @@ QUESTION_BANK["4-2"] = [
 ];
 
 // --- これで QUESTION_BANK が正常に読み込まれる ---
+// app.js から参照できるようにする
+window.BOOK_STRUCTURE = BOOK_STRUCTURE;
+window.QUESTION_BANK = QUESTION_BANK;
+
+
+
+
