@@ -1,12 +1,65 @@
+// ================================
+// 変数
+// ================================
 let quizList = [];
 let quizIndex = 0;
 let score = 0;
-
-// ▼ 「次へ」ボタンを後で生成するための変数
 let nextBtn = null;
 
+
 // ================================
-// 問題を表示
+// モードによって出題リストを作る
+// ================================
+function buildQuizList() {
+  const mode = document.querySelector("input[name=mode]:checked").value;
+
+  if (mode === "chapter") {
+    const chapter = document.getElementById("chapter-select").value;
+    quizList = QUESTION_BANK[chapter] || [];
+
+  } else if (mode === "hen") {
+    const hen = document.getElementById("hen-select").value;
+    const ch = document.getElementById("hen-chapter-select").value;
+    const key = `${hen}-${ch}`;
+    quizList = QUESTION_BANK[key] || [];
+
+  } else {
+    // 全問題を統合
+    quizList = [];
+    for (const key in QUESTION_BANK) {
+      quizList = quizList.concat(QUESTION_BANK[key]);
+    }
+  }
+
+  // ランダムにシャッフル
+  quizList = quizList.sort(() => Math.random() - 0.5);
+}
+
+
+// ================================
+// クイズ開始
+// ================================
+document.getElementById("start-btn").onclick = () => {
+  buildQuizList();
+
+  if (quizList.length === 0) {
+    alert("問題がありません。");
+    return;
+  }
+
+  quizIndex = 0;
+  score = 0;
+
+  document.getElementById("setup-screen").classList.add("hidden");
+  document.getElementById("result-screen").classList.add("hidden");
+  document.getElementById("quiz-screen").classList.remove("hidden");
+
+  showQuiz();
+};
+
+
+// ================================
+// 問題表示
 // ================================
 function showQuiz() {
   const q = quizList[quizIndex];
@@ -16,15 +69,12 @@ function showQuiz() {
   const optionsDiv = document.getElementById("quiz-options");
   optionsDiv.innerHTML = "";
 
-  // フィードバック非表示
   const feedback = document.getElementById("quiz-feedback");
   feedback.textContent = "";
   feedback.className = "feedback";
 
-  // 以前の「次へ」ボタンを消す
   if (nextBtn) nextBtn.remove();
 
-  // 選択肢ボタン生成
   q.opts.forEach((opt, i) => {
     const btn = document.createElement("button");
     btn.textContent = opt;
@@ -37,7 +87,7 @@ function showQuiz() {
 
 
 // ================================
-// 回答処理（選択肢を押した時）
+// 回答処理
 // ================================
 function handleAnswer(selected, correct, explanation) {
   const feedback = document.getElementById("quiz-feedback");
@@ -51,11 +101,9 @@ function handleAnswer(selected, correct, explanation) {
     feedback.classList.add("wrong");
   }
 
-  // すべてのボタンを無効化
   const optionButtons = document.querySelectorAll("#quiz-options button");
   optionButtons.forEach(b => b.disabled = true);
 
-  // ▼ 「次へ」ボタンを生成
   nextBtn = document.createElement("button");
   nextBtn.textContent = "次へ";
   nextBtn.className = "btn-primary";
@@ -76,12 +124,4 @@ function handleAnswer(selected, correct, explanation) {
 
 
 // ================================
-// 結果画面
-// ================================
-function showResult() {
-  document.getElementById("quiz-screen").classList.add("hidden");
-  document.getElementById("result-screen").classList.remove("hidden");
-
-  document.getElementById("result-score").textContent =
-    `正解数：${score} / ${quizList.length}`;
-}
+// 結果表示
