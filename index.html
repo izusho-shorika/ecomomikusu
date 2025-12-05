@@ -18,13 +18,13 @@
     <label><input type="radio" name="mode" value="hen"> 編 → 章 を選択して出題</label>
     <label><input type="radio" name="mode" value="all"> 全問題からランダム出題</label>
 
-    <!-- ■ 章セレクト（mode = chapter） -->
+    <!-- 章指定 -->
     <div id="chapter-select-area">
       <h3>章を選んでください</h3>
       <select id="chapter-select"></select>
     </div>
 
-    <!-- ■ 編 → 章 セレクト（mode = hen） -->
+    <!-- 編 → 章 指定 -->
     <div id="hen-select-area" class="hidden">
       <h3>編を選択</h3>
       <select id="hen-select"></select>
@@ -45,7 +45,6 @@
 
     <div id="quiz-feedback" class="feedback"></div>
 
-    <!-- ★ 重要：Next（次へ）ボタン -->
     <button id="next-btn" class="btn-primary hidden">次へ</button>
 
     <button id="back-to-setup-btn" class="btn-ghost">最初に戻る</button>
