@@ -43,19 +43,24 @@ label {
   margin: 6px 0;
 }
 
-/* セレクトボックス */
+/* ▼ select が iPad/iPhone で消えるバグの完全対策 ▼ */
 select {
   width: 100%;
-  padding: 8px 10px;
+  min-height: 44px !important;
+  line-height: 44px !important;
+  padding: 0 12px !important;
   margin-top: 6px;
   font-size: 15px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
-  background: white;
+  background: white !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   appearance: none;
 }
 
-/* 青いボタン */
+/* 青色ボタン */
 .btn-primary {
   width: 100%;
   padding: 14px;
@@ -67,7 +72,6 @@ select {
   border-radius: 8px;
   margin-top: 24px;
 }
-
 .btn-primary:hover {
   background: #2169d8;
 }
@@ -84,7 +88,7 @@ select {
   margin-top: 10px;
 }
 
-/* 非表示制御 */
+/* 非表示 */
 .hidden {
   display: none !important;
 }
@@ -121,7 +125,6 @@ select {
 .feedback.correct {
   color: green;
 }
-
 .feedback.wrong {
   color: red;
 }
