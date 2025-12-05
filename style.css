@@ -1,138 +1,112 @@
-/* 画面全体の整形 */
+/* 全体背景 */
 body {
   margin: 0;
   padding: 0;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  background: #f4f7fb;
+  background: #f5f6fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #222;
 }
 
-/* 中央カード配置 */
-.center-card {
-  max-width: 540px;
+/* 中央カード */
+#setup-screen,
+#quiz-screen,
+#result-screen {
+  max-width: 760px;
   margin: 40px auto;
-  padding: 0 16px;
+  background: white;
+  padding: 32px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 /* タイトル */
-.title {
+h1 {
   text-align: center;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-.subtitle {
+h2 {
   text-align: center;
-  font-size: 15px;
-  color: #555;
+  font-size: 20px;
+  font-weight: 600;
+  color: #444;
+  margin-top: 0;
   margin-bottom: 24px;
 }
 
-/* カード */
-.card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+/* 説明テキスト */
+.sub-text {
+  text-align: center;
+  color: #6b6b6b;
+  margin-bottom: 24px;
 }
 
-/* ラジオの横並び */
-.mode-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-/* セクションタイトル */
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-/* 小見出し */
-.small-title {
-  margin: 10px 0 6px;
-  font-size: 14px;
-  color: #333;
+/* ラジオボタン行 */
+label {
+  display: block;
+  font-size: 16px;
+  margin: 6px 0;
 }
 
 /* セレクトボックス */
-.select-box {
+select {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 16px;
-  background: #fff;
-  margin-bottom: 14px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  font-size: 15px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: white;
+  appearance: none;
 }
 
-/* ボタン */
+/* 青いボタン */
 .btn-primary {
-  background: #2F6BFF;
-  color: #fff;
-  border: none;
-  padding: 14px 0;
+  width: 100%;
+  padding: 14px;
+  background: #297af6;
+  color: white;
   font-size: 17px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.btn-primary:hover {
-  background: #1f54cc;
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid #aaa;
-  padding: 12px 0;
-  font-size: 16px;
-  border-radius: 10px;
-  color: #444;
-}
-
-.full {
-  width: 100%;
-  margin-top: 14px;
-}
-
-/* クイズ画面 */
-.quiz-question {
-  margin: 12px 0;
-  font-size: 20px;
   font-weight: 600;
-}
-
-.options button {
-  display: block;
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  font-size: 16px;
+  border: none;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #fafafa;
+  margin-top: 24px;
 }
 
-.options button:hover {
-  background: #e8eefc;
+.btn-primary:hover {
+  background: #2169d8;
 }
 
-.feedback {
-  margin-top: 12px;
-  font-size: 16px;
-  min-height: 24px;
+/* グレー枠の薄い説明 */
+.info-note {
+  font-size: 13px;
+  color: #666;
+  margin-top: 20px;
 }
 
-.result-score {
-  font-size: 22px;
-  text-align: center;
-  margin: 20px 0;
-}
-
-/* 非表示 */
+/* 非表示制御 */
 .hidden {
   display: none;
+}
+
+/* クイズ画面などの調整 */
+#quiz-question {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+#quiz-options button {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+#quiz-options button:hover {
+  background: #eef4ff;
 }
