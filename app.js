@@ -204,11 +204,10 @@ function onSelectOption(idx, btnEl) {
     .forEach((b) => b.classList.remove("selected"));
   btnEl.classList.add("selected");
 
-  // 回答を即時判定してもよいし、「次へ」で判定でもよい。
-  // ここでは「選んだ時点で正誤表示」にする。
   const qObj = quizQuestions[currentIndex];
   const correct = idx === qObj.answer;
 
+  // 正解・不正解の色付け
   document
     .querySelectorAll(".option-btn")
     .forEach((b, i) => {
@@ -217,7 +216,14 @@ function onSelectOption(idx, btnEl) {
       if (i === idx && !correct) b.classList.add("wrong");
     });
 
-  quizFeedbackEl.textContent = correct ? "正解！" : "不正解...";
+  // ★メッセージ＋解説の表示
+  const baseMsg = correct ? "正解！" : "不正解...";
+  if (qObj.exp) {
+    quizFeedbackEl.innerHTML =
+      baseMsg + '<br><span class="feedback-exp">' + qObj.exp + "</span>";
+  } else {
+    quizFeedbackEl.textContent = baseMsg;
+  }
   quizFeedbackEl.className = "feedback " + (correct ? "correct" : "wrong");
 
   locked = true;
@@ -228,7 +234,8 @@ function onSelectOption(idx, btnEl) {
     q: qObj.q,
     your: idx,
     correctIndex: qObj.answer,
-    correct
+    correct,
+    exp: qObj.exp || ""
   });
   if (correct) score++;
 }
