@@ -1,108 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>エコノミクス甲子園 練習アプリV2</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>エコノミクス甲子園 練習アプリ</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-  <header class="app-header">
-    <h1>エコノミクス甲子園 練習アプリ</h1>
-    <p class="subtitle">第Ⅰ編・第Ⅱ編 対策 4択クイズ（解説つき）</p>
-  </header>
 
-  <main class="app-main">
-    <section class="card">
-      <h2>出題モード</h2>
-      <div class="mode-group">
-        <label>
-          <input type="radio" name="mode" value="range" checked>
-          ① 編・章を指定して解く
-        </label>
-        <label>
-          <input type="radio" name="mode" value="hen">
-          ② 編の中の全章からランダム
-        </label>
-        <label>
-          <input type="radio" name="mode" value="all">
-          ③ 全範囲からランダム
-        </label>
+<div class="container">
+
+  <h1 class="title">エコノミクス甲子園 練習アプリ</h1>
+  <p class="subtitle">第Ⅰ編〜第Ⅳ編 対策 4択クイズ（解説つき）</p>
+
+  <section class="card">
+
+    <h2>出題モード</h2>
+
+    <label class="mode-item">
+      <input type="radio" name="mode" value="select" checked>
+      ① 編・章を指定して解く
+    </label>
+
+    <label class="mode-item">
+      <input type="radio" name="mode" value="edition">
+      ② 編の中の全章からランダム
+    </label>
+
+    <label class="mode-item">
+      <input type="radio" name="mode" value="all">
+      ③ 全範囲からランダム
+    </label>
+
+    <div class="row">
+      <div class="field">
+        <label>編</label>
+        <select id="editionSelect">
+          <option value="">選択してください</option>
+          <!-- app.js で自動追加 -->
+        </select>
       </div>
 
-      <div class="selectors">
-        <div class="selector">
-          <label for="hen-select">編</label>
-          <select id="hen-select"></select>
-        </div>
-        <div class="selector">
-          <label for="chapter-select">章</label>
-          <select id="chapter-select"></select>
-        </div>
-        <div class="selector">
-          <label for="question-count">出題数</label>
-          <select id="question-count">
-            <option value="10">10問</option>
-            <option value="20" selected>20問</option>
-          </select>
-        </div>
+      <div class="field">
+        <label>章</label>
+        <select id="chapterSelect">
+          <option value="">編を選んでください</option>
+          <!-- app.js で自動追加 -->
+        </select>
       </div>
 
-      <button id="start-btn" class="primary">この条件でスタート</button>
-      <p id="config-error" class="muted"></p>
-    </section>
-
-    <section id="quiz-section" class="card hidden">
-      <div class="quiz-header">
-        <div id="quiz-progress" class="tag">0 / 0</div>
-        <div id="quiz-meta" class="muted small"></div>
+      <div class="field">
+        <label>出題数</label>
+        <select id="countSelect">
+          <option value="10">10問</option>
+          <option value="20" selected>20問</option>
+          <option value="30">30問</option>
+        </select>
       </div>
-      <h2 id="quiz-question" class="quiz-question"></h2>
-      <div id="quiz-options" class="options"></div>
-      <p id="quiz-feedback" class="feedback"></p>
-      <div class="quiz-footer">
-        <button id="next-btn" class="secondary" disabled>次の問題へ ▶</button>
-      </div>
-    </section>
+    </div>
 
-    <section id="result-section" class="card hidden">
-      <h2>結果</h2>
-      <p id="result-summary" class="result-summary"></p>
-      <ol id="result-list" class="result-list"></ol>
-      <div class="result-actions">
-        <button id="retry-btn" class="secondary">同じ条件でもう一度</button>
-        <button id="back-btn" class="ghost">設定に戻る</button>
-      </div>
-    </section>
-  </main>
+    <button id="startBtn" class="btn-primary">この条件でスタート</button>
 
-  <footer class="app-footer">
-    <p>（学校内利用のみ）エコノミクス甲子園対策用 非公開アプリ</p>
-  </footer>
+  </section>
 
-  <script src="questions.js"></script>
+  <section id="quizSection" class="card hidden">
+    <h2 id="quizTitle"></h2>
+    <div id="questionBox"></div>
+    <div id="resultBox" class="hidden"></div>
+  </section>
 
-  <script>
-    const BOOK_STRUCTURE = {
-      // 第Ⅰ編
-      "1": {
-        name: "第Ⅰ編（経済の基本）",
-        chapters: {
-          "1-2": "1-2 選択と機会費用",
-          "1-3": "1-3 市場の仕組みと価格決定"
-        }
-      },
-      // 第Ⅱ編
-      "2": {
-        name: "第Ⅱ編（家計と金融）",
-        chapters: {
-          "2-1": "2-1 ライフプランと住宅・教育資金",
-          "2-2": "2-2 公的年金制度"
-        }
-      }
-    };
-  </script>
-  
-  <script src="app.js"></script>
+</div>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
