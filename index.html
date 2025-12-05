@@ -3,58 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>エコノミクス検定クイズ</title>
+  <title>エコノミクス甲子園 練習クイズ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
   <!-- ■ 画面１：設定画面 -->
-  <section id="setup-screen">
-    <h1>エコノミクス検定クイズ</h1>
+  <section id="setup-screen" class="center-card">
+    <h1 class="title">エコノミクス甲子園 練習クイズ</h1>
+    <p class="subtitle">編・章を選んで 4択問題にチャレンジしよう！</p>
 
-    <h2>出題モード</h2>
-    <label><input type="radio" name="mode" value="chapter" checked> 章を選択して出題</label>
-    <label><input type="radio" name="mode" value="hen"> 編 → 章 を選択して出題</label>
-    <label><input type="radio" name="mode" value="all"> 全問題からランダム出題</label>
+    <div class="card">
 
-    <!-- ■ 章セレクト（mode = chapter） -->
-    <div id="chapter-select-area" class="">
-      <h3>章を選んでください</h3>
-      <select id="chapter-select"></select>
+      <h2 class="section-title">出題モード</h2>
+
+      <div class="mode-row">
+        <label><input type="radio" name="mode" value="chapter" checked> 章から選ぶ</label>
+        <label><input type="radio" name="mode" value="hen"> 編 → 章</label>
+        <label><input type="radio" name="mode" value="all"> 全問題ランダム</label>
+      </div>
+
+      <!-- ■ 章セレクト（mode = chapter） -->
+      <div id="chapter-select-area">
+        <h3 class="small-title">章を選択</h3>
+        <select id="chapter-select" class="select-box"></select>
+      </div>
+
+      <!-- ■ 編 → 章 セレクト（mode = hen） -->
+      <div id="hen-select-area" class="hidden">
+        <h3 class="small-title">編を選択</h3>
+        <select id="hen-select" class="select-box"></select>
+
+        <h3 class="small-title">章を選択</h3>
+        <select id="hen-chapter-select" class="select-box"></select>
+      </div>
+
+      <button id="start-btn" class="btn-primary full">この範囲でスタート</button>
     </div>
-
-    <!-- ■ 編 → 章 セレクト（mode = hen） -->
-    <div id="hen-select-area" class="hidden">
-      <h3>編を選択</h3>
-      <select id="hen-select"></select>
-
-      <h3>章を選択</h3>
-      <select id="hen-chapter-select"></select>
-    </div>
-
-    <button id="start-btn" class="btn-primary">この範囲でスタート</button>
   </section>
 
   <!-- ■ 画面２：クイズ画面 -->
-  <section id="quiz-screen" class="hidden">
-    <div id="quiz-progress"></div>
-    <h2 id="quiz-question"></h2>
+  <section id="quiz-screen" class="hidden center-card">
+    <div class="card">
+      <div id="quiz-progress" class="progress"></div>
+      <h2 id="quiz-question" class="quiz-question"></h2>
 
-    <div id="quiz-options"></div>
+      <div id="quiz-options" class="options"></div>
 
-    <div id="quiz-feedback" class="feedback"></div>
+      <div id="quiz-feedback" class="feedback"></div>
 
-    <button id="back-to-setup-btn" class="btn-ghost">最初に戻る</button>
+      <button id="back-to-setup-btn" class="btn-ghost full">最初に戻る</button>
+    </div>
   </section>
 
   <!-- ■ 画面３：結果画面 -->
-  <section id="result-screen" class="hidden">
-    <h2>結果</h2>
-    <p id="result-score"></p>
+  <section id="result-screen" class="hidden center-card">
+    <div class="card">
+      <h2>結果</h2>
+      <p id="result-score" class="result-score"></p>
 
-    <button id="retry-same-btn" class="btn-primary">同じ範囲でもう一度</button>
-    <button id="back-to-setup-btn2" class="btn-ghost">モード選択に戻る</button>
+      <button id="retry-same-btn" class="btn-primary full">同じ範囲でもう一度</button>
+      <button id="back-to-setup-btn2" class="btn-ghost full">モード選択に戻る</button>
+    </div>
   </section>
 
   <script src="questions.js"></script>
