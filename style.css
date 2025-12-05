@@ -120,3 +120,19 @@ select {
 .feedback.wrong {
   color: #e74c3c;
 }
+
+/* ▼ 選択肢ボタンがクリックできない問題の強制修正 */
+#quiz-options button {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1000;
+}
+
+/* 透明な覆いが存在する場合の除去 */
+#quiz-screen * {
+  pointer-events: auto !important;
+}
+
+.hidden {
+  display: none !important;
+}
