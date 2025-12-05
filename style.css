@@ -132,7 +132,3 @@ select {
 #quiz-screen * {
   pointer-events: auto !important;
 }
-
-.hidden {
-  display: none !important;
-}
