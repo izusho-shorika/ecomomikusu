@@ -1,79 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>エコノミクス甲子園 練習アプリ</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="utf-8">
+  <title>エコノミクス甲子園 練習クイズ</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div class="app">
+    <header class="app-header">
+      <h1>エコノミクス甲子園 練習クイズv2</h1>
+      <p class="subtitle">編・章を選んで4択問題にチャレンジしよう</p>
+    </header>
 
-<div class="container">
-
-  <h1 class="title">エコノミクス甲子園 練習アプリ</h1>
-  <p class="subtitle">第Ⅰ編〜第Ⅳ編 対策 4択クイズ（解説つき）</p>
-
-  <section class="card">
-
-    <h2>出題モード</h2>
-
-    <label class="mode-item">
-      <input type="radio" name="mode" value="select" checked>
-      ① 編・章を指定して解く
-    </label>
-
-    <label class="mode-item">
-      <input type="radio" name="mode" value="edition">
-      ② 編の中の全章からランダム
-    </label>
-
-    <label class="mode-item">
-      <input type="radio" name="mode" value="all">
-      ③ 全範囲からランダム
-    </label>
-
-    <div class="row">
-      <div class="field">
-        <label>編</label>
-        <select id="editionSelect">
-          <option value="">選択してください</option>
-          <!-- app.js で自動追加 -->
-        </select>
-      </div>
+    <!-- ▼ セットアップ画面 -->
+    <section id="setup-screen" class="card">
+      <h2>出題モードを選択</h2>
 
       <div class="field">
-        <label>章</label>
-        <select id="chapterSelect">
-          <option value="">編を選んでください</option>
-          <!-- app.js で自動追加 -->
-        </select>
+        <label><input type="radio" name="mode" value="chapter" checked> ① 範囲指定（編＋章）</label><br>
+        <label><input type="radio" name="mode" value="hen"> ② 編ごとランダム20問</label><br>
+        <label><input type="radio" name="mode" value="all"> ③ 全体からランダム20問</label>
       </div>
 
-      <div class="field">
-        <label>出題数</label>
-        <select id="countSelect">
-          <option value="10">10問</option>
-          <option value="20" selected>20問</option>
-          <option value="30">30問</option>
-        </select>
+      <div id="hen-select-area" class="field">
+        <label for="hen-select">編を選択：</label>
+        <select id="hen-select"></select>
       </div>
-    </div>
 
-    <button id="startBtn" class="btn-primary">この条件でスタート</button>
+      <div id="chapter-select-area" class="field">
+        <label for="chapter-select">章を選択：</label>
+        <select id="chapter-select"></select>
+      </div>
 
-  </section>
+      <button id="start-btn" class="btn primary">この範囲でスタート</button>
+      <p class="note">※ 現在は「第Ⅰ編 第2章・第3章」のみ登録済み。あとから他の章も追加可能です。</p>
+    </section>
 
-  <section id="quizSection" class="card hidden">
-    <h2 id="quizTitle"></h2>
-    <div id="questionBox"></div>
-    <div id="resultBox" class="hidden"></div>
-  </section>
+    <!-- ▼ クイズ画面 -->
+    <section id="quiz-screen" class="card hidden">
+      <div class="quiz-header">
+        <div id="quiz-range" class="badge"></div>
+        <div id="quiz-progress"></div>
+      </div>
 
-</div>
-  
-<script src="questions.js"></script>
-<script src="app.js"></script>
+      <h2 id="quiz-question-text"></h2>
+
+      <ul id="quiz-options" class="options-list">
+        <!-- JSで選択肢ボタンを挿入 -->
+      </ul>
+
+      <div id="quiz-feedback" class="feedback"></div>
+
+      <div class="quiz-footer">
+        <button id="back-to-setup-btn" class="btn ghost">最初に戻る</button>
+        <button id="next-btn" class="btn primary" disabled>次へ</button>
+      </div>
+    </section>
+
+    <!-- ▼ 結果画面 -->
+    <section id="result-screen" class="card hidden">
+      <h2>結果</h2>
+      <p id="result-score" class="result-score"></p>
+      <p id="result-detail" class="result-detail"></p>
+
+      <div class="result-actions">
+        <button id="retry-same-btn" class="btn primary">同じ範囲でもう一度</button>
+        <button id="back-to-setup-btn2" class="btn ghost">モード選択に戻る</button>
+      </div>
+
+      <details class="result-list">
+        <summary>問題ごとの正解・不正解を見る</summary>
+        <ol id="result-list-ol"></ol>
+      </details>
+    </section>
+  </div>
+
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
