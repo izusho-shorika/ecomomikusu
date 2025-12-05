@@ -1,127 +1,188 @@
-// ================================
-// 変数
-// ================================
-let quizList = [];
+// ------------------------------
+// UI 切替
+// ------------------------------
+const setupScreen = document.getElementById("setup-screen");
+const quizScreen = document.getElementById("quiz-screen");
+const resultScreen = document.getElementById("result-screen");
+
+const chapterArea = document.getElementById("chapter-select-area");
+const henArea = document.getElementById("hen-select-area");
+
+const chapterSelect = document.getElementById("chapter-select");
+const henSelect = document.getElementById("hen-select");
+const henChapterSelect = document.getElementById("hen-chapter-select");
+
+let currentQuestions = [];
 let quizIndex = 0;
-let score = 0;
-let nextBtn = null;
+let correctCount = 0;
+let lastMode = "chapter";
 
+// ------------------------------
+// モード選択で UI 切替
+// ------------------------------
+document.querySelectorAll('input[name="mode"]').forEach(r => {
+  r.addEventListener("change", () => {
+    const m = r.value;
+    lastMode = m;
 
-// ================================
-// モードによって出題リストを作る
-// ================================
-function buildQuizList() {
-  const mode = document.querySelector("input[name=mode]:checked").value;
+    chapterArea.classList.toggle("hidden", m !== "chapter");
+    henArea.classList.toggle("hidden", m !== "hen");
+  });
+});
 
-  if (mode === "chapter") {
-    const chapter = document.getElementById("chapter-select").value;
-    quizList = QUESTION_BANK[chapter] || [];
+// ------------------------------
+// プルダウン生成
+// ------------------------------
+function initSelectors() {
+  // 章選択 mode=chapter 用
+  chapterSelect.innerHTML = "";
+  Object.keys(BOOK_STRUCTURE).forEach(h => {
+    const chapters = BOOK_STRUCTURE[h].chapters;
 
-  } else if (mode === "hen") {
-    const hen = document.getElementById("hen-select").value;
-    const ch = document.getElementById("hen-chapter-select").value;
-    const key = `${hen}-${ch}`;
-    quizList = QUESTION_BANK[key] || [];
+    Object.keys(chapters).forEach(ch => {
+      const opt = document.createElement("option");
+      opt.value = `${h}-${ch}`;
+      opt.textContent = `${BOOK_STRUCTURE[h].name} / ${chapters[ch]}`;
+      chapterSelect.appendChild(opt);
+    });
+  });
 
-  } else {
-    // 全問題を統合
-    quizList = [];
-    for (const key in QUESTION_BANK) {
-      quizList = quizList.concat(QUESTION_BANK[key]);
-    }
-  }
+  // 編選択 mode=hen 用
+  henSelect.innerHTML = "";
+  Object.keys(BOOK_STRUCTURE).forEach(h => {
+    const opt = document.createElement("option");
+    opt.value = h;
+    opt.textContent = BOOK_STRUCTURE[h].name;
+    henSelect.appendChild(opt);
+  });
 
-  // ランダムにシャッフル
-  quizList = quizList.sort(() => Math.random() - 0.5);
+  updateHenChapters();
 }
 
+function updateHenChapters() {
+  const h = henSelect.value;
+  henChapterSelect.innerHTML = "";
 
-// ================================
+  Object.keys(BOOK_STRUCTURE[h].chapters).forEach(ch => {
+    const opt = document.createElement("option");
+    opt.value = `${h}-${ch}`;
+    opt.textContent = BOOK_STRUCTURE[h].chapters[ch];
+    henChapterSelect.appendChild(opt);
+  });
+}
+
+henSelect.addEventListener("change", updateHenChapters);
+
+// ------------------------------
 // クイズ開始
-// ================================
-document.getElementById("start-btn").onclick = () => {
-  buildQuizList();
+// ------------------------------
+document.getElementById("start-btn").addEventListener("click", () => {
+  let key = "";
 
-  if (quizList.length === 0) {
-    alert("問題がありません。");
+  if (lastMode === "chapter") {
+    key = chapterSelect.value;
+  } else if (lastMode === "hen") {
+    key = henChapterSelect.value;
+  } else {
+    // 全問題モード
+    const allKeys = Object.keys(QUESTION_BANK);
+    key = allKeys[Math.floor(Math.random() * allKeys.length)];
+  }
+
+  currentQuestions = QUESTION_BANK[key];
+
+  if (!currentQuestions || currentQuestions.length === 0) {
+    alert("問題データがありません");
     return;
   }
 
   quizIndex = 0;
-  score = 0;
+  correctCount = 0;
 
-  document.getElementById("setup-screen").classList.add("hidden");
-  document.getElementById("result-screen").classList.add("hidden");
-  document.getElementById("quiz-screen").classList.remove("hidden");
+  setupScreen.classList.add("hidden");
+  quizScreen.classList.remove("hidden");
 
-  showQuiz();
-};
+  showQuestion();
+});
 
-
-// ================================
+// ------------------------------
 // 問題表示
-// ================================
-function showQuiz() {
-  const q = quizList[quizIndex];
-
+// ------------------------------
+function showQuestion() {
+  const q = currentQuestions[quizIndex];
   document.getElementById("quiz-question").textContent = q.q;
+  document.getElementById("quiz-progress").textContent = `${quizIndex + 1} / ${currentQuestions.length}`;
 
-  const optionsDiv = document.getElementById("quiz-options");
-  optionsDiv.innerHTML = "";
+  const optArea = document.getElementById("quiz-options");
+  optArea.innerHTML = "";
 
-  const feedback = document.getElementById("quiz-feedback");
-  feedback.textContent = "";
-  feedback.className = "feedback";
-
-  if (nextBtn) nextBtn.remove();
-
-  q.opts.forEach((opt, i) => {
+  q.opts.forEach((text, i) => {
     const btn = document.createElement("button");
-    btn.textContent = opt;
-
-    btn.onclick = () => handleAnswer(i, q.answer, q.exp);
-
-    optionsDiv.appendChild(btn);
+    btn.textContent = text;
+    btn.addEventListener("click", () => answer(i));
+    optArea.appendChild(btn);
   });
+
+  document.getElementById("quiz-feedback").textContent = "";
 }
 
-
-// ================================
+// ------------------------------
 // 回答処理
-// ================================
-function handleAnswer(selected, correct, explanation) {
-  const feedback = document.getElementById("quiz-feedback");
+// ------------------------------
+function answer(i) {
+  const q = currentQuestions[quizIndex];
+  const fb = document.getElementById("quiz-feedback");
 
-  if (selected === correct) {
-    score++;
-    feedback.textContent = "⭕ 正解！\n" + explanation;
-    feedback.classList.add("correct");
+  if (i === q.answer) {
+    fb.textContent = "正解！ " + q.exp;
+    fb.style.color = "green";
+    correctCount++;
   } else {
-    feedback.textContent = "❌ 不正解\n" + explanation;
-    feedback.classList.add("wrong");
+    fb.textContent = "不正解… 正しくは「" + q.opts[q.answer] + "」";
+    fb.style.color = "red";
   }
 
-  const optionButtons = document.querySelectorAll("#quiz-options button");
-  optionButtons.forEach(b => b.disabled = true);
-
-  nextBtn = document.createElement("button");
-  nextBtn.textContent = "次へ";
-  nextBtn.className = "btn-primary";
-  nextBtn.style.marginTop = "20px";
-
-  nextBtn.onclick = () => {
+  setTimeout(() => {
     quizIndex++;
-
-    if (quizIndex < quizList.length) {
-      showQuiz();
-    } else {
+    if (quizIndex >= currentQuestions.length) {
       showResult();
+    } else {
+      showQuestion();
     }
-  };
-
-  document.getElementById("quiz-screen").appendChild(nextBtn);
+  }, 1100);
 }
 
-
-// ================================
+// ------------------------------
 // 結果表示
+// ------------------------------
+function showResult() {
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+
+  document.getElementById("result-score").textContent =
+    `正解数：${correctCount} / ${currentQuestions.length}`;
+}
+
+// ------------------------------
+// ボタン：戻る・やり直し
+// ------------------------------
+document.getElementById("back-to-setup-btn").addEventListener("click", () => {
+  quizScreen.classList.add("hidden");
+  setupScreen.classList.remove("hidden");
+});
+
+document.getElementById("back-to-setup-btn2").addEventListener("click", () => {
+  resultScreen.classList.add("hidden");
+  setupScreen.classList.remove("hidden");
+});
+
+document.getElementById("retry-same-btn").addEventListener("click", () => {
+  resultScreen.classList.add("hidden");
+  quizIndex = 0;
+  correctCount = 0;
+  quizScreen.classList.remove("hidden");
+  showQuestion();
+});
+
+// ------------------------------
+initSelectors();
