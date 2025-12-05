@@ -1,136 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>エコノミクス甲子園 練習クイズ</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エコノミクス検定クイズ</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- ★JS の option-btn を CSS の opt-btn にマッピング -->
-  <style>
-    .option-btn {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #f7f7f7;
-      border: 1px solid #bbb;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-    }
-    .option-btn:hover {
-      background: #e0ebff;
-    }
-    .option-btn.selected {
-      border-color: #2979ff;
-      background: #e6f0ff;
-    }
-    .option-btn.correct {
-      border-color: #2e7d32;
-      background: #e8f5e9;
-    }
-    .option-btn.wrong {
-      border-color: #c62828;
-      background: #ffebee;
-    }
-
-    /* btn primary の正しい定義（style.css と一致） */
-    .btn-primary {
-      background: #2979ff;
-      color: #fff;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .btn-primary:disabled {
-      opacity: 0.6;
-    }
-
-    .btn-ghost {
-      background: #eee;
-      color: #333;
-      padding: 12px 20px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-  </style>
 </head>
 
 <body>
-  <div class="app">
-    <header class="app-header">
-      <h1>エコノミクス甲子園 練習クイズ</h1>
-      <p class="subtitle">編・章を選んで4択問題にチャレンジしようv2</p>
-    </header>
 
-    <!-- ▼ セットアップ画面 -->
-    <section id="setup-screen" class="card">
-      <h2>出題モードを選択</h2>
+  <!-- ■ 画面１：設定画面 -->
+  <section id="setup-screen">
+    <h1>エコノミクス検定クイズ</h1>
 
-      <div class="field">
-        <label><input type="radio" name="mode" value="chapter" checked> ① 範囲指定（編＋章）</label><br>
-        <label><input type="radio" name="mode" value="hen"> ② 編ごとランダム20問</label><br>
-        <label><input type="radio" name="mode" value="all"> ③ 全体からランダム20問</label>
-      </div>
+    <h2>出題モード</h2>
+    <label><input type="radio" name="mode" value="chapter" checked> 章を選択して出題</label>
+    <label><input type="radio" name="mode" value="hen"> 編 → 章 を選択して出題</label>
+    <label><input type="radio" name="mode" value="all"> 全問題からランダム出題</label>
 
-      <div id="hen-select-area" class="field">
-        <label for="hen-select">編を選択：</label>
-        <select id="hen-select"></select>
-      </div>
+    <!-- ■ 章セレクト（mode = chapter） -->
+    <div id="chapter-select-area" class="">
+      <h3>章を選んでください</h3>
+      <select id="chapter-select"></select>
+    </div>
 
-      <div id="chapter-select-area" class="field">
-        <label for="chapter-select">章を選択：</label>
-        <select id="chapter-select"></select>
-      </div>
+    <!-- ■ 編 → 章 セレクト（mode = hen） -->
+    <div id="hen-select-area" class="hidden">
+      <h3>編を選択</h3>
+      <select id="hen-select"></select>
 
-      <!-- ★btn primary を btn-primary に修正 -->
-      <button id="start-btn" class="btn-primary">この範囲でスタート</button>
+      <h3>章を選択</h3>
+      <select id="hen-chapter-select"></select>
+    </div>
 
-      <p class="note">※ 現在は「第Ⅰ編 第2章・第3章」のみ登録済み。あとから他の章も追加可能です。</p>
-    </section>
+    <button id="start-btn" class="btn-primary">この範囲でスタート</button>
+  </section>
 
-    <!-- ▼ クイズ画面 -->
-    <section id="quiz-screen" class="card hidden">
-      <div class="quiz-header">
-        <div id="quiz-range" class="badge"></div>
-        <div id="quiz-progress"></div>
-      </div>
+  <!-- ■ 画面２：クイズ画面 -->
+  <section id="quiz-screen" class="hidden">
+    <div id="quiz-progress"></div>
+    <h2 id="quiz-question"></h2>
 
-      <h2 id="quiz-question-text"></h2>
+    <div id="quiz-options"></div>
 
-      <ul id="quiz-options" class="options-list">
-        <!-- JSで option-btn が挿入される -->
-      </ul>
+    <div id="quiz-feedback" class="feedback"></div>
 
-      <div id="quiz-feedback" class="feedback"></div>
+    <button id="back-to-setup-btn" class="btn-ghost">最初に戻る</button>
+  </section>
 
-      <div class="quiz-footer">
-        <button id="back-to-setup-btn" class="btn-ghost">最初に戻る</button>
-        <button id="next-btn" class="btn-primary" disabled>次へ</button>
-      </div>
-    </section>
+  <!-- ■ 画面３：結果画面 -->
+  <section id="result-screen" class="hidden">
+    <h2>結果</h2>
+    <p id="result-score"></p>
 
-    <!-- ▼ 結果画面 -->
-    <section id="result-screen" class="card hidden">
-      <h2>結果</h2>
-      <p id="result-score" class="result-score"></p>
-      <p id="result-detail" class="result-detail"></p>
-
-      <div class="result-actions">
-        <button id="retry-same-btn" class="btn-primary">同じ範囲でもう一度</button>
-        <button id="back-to-setup-btn2" class="btn-ghost">モード選択に戻る</button>
-      </div>
-
-      <details class="result-list">
-        <summary>問題ごとの正解・不正解を見る</summary>
-        <ol id="result-list-ol"></ol>
-      </details>
-    </section>
-  </div>
+    <button id="retry-same-btn" class="btn-primary">同じ範囲でもう一度</button>
+    <button id="back-to-setup-btn2" class="btn-ghost">モード選択に戻る</button>
+  </section>
 
   <script src="questions.js"></script>
   <script src="app.js"></script>
