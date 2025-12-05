@@ -118,11 +118,11 @@ function collectQuestions(mode, henId, chapterId, count) {
     });
   }
 
-  if (!list.length) return [];
+   if (!list.length) return [];
 
   // ★ 個々の問題にも毎回シャッフルを適用
   const shuffledList = shuffle(list)
-    .slice(0, Math.min(count, list.length)))
+    .slice(0, Math.min(count, list.length))
     .map(q => shuffleOptions(q));  // ← ここが重要！
 
   return shuffledList;
